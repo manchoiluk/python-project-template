@@ -1,0 +1,20 @@
+# 本地 Git 提交拦截卡口
+# 初始化生效指令: make install 或 uv run pre-commit install
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/robertcraigie/pyright-python
+    rev: v1.1.350
+    hooks:
+      - id: pyright
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [pydantic>=2.0.0]
