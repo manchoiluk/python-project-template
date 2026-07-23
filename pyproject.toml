@@ -1,0 +1,94 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# -----------------------------------------------------------------------------
+# 项目元数据与依赖声明 (PEP 621 + uv 识别格式)
+# -----------------------------------------------------------------------------
+[project]
+name = "strict-service"
+version = "0.1.0"
+description = "Financial-grade Python service template"
+readme = "README.md"
+requires-python = ">=3.11"
+
+# 生产/运行时强校验依赖
+dependencies = [
+    "pydantic>=2.6.0",
+    "beartype>=0.17.0",
+]
+
+# 开发/测试工具依赖 (由 uv sync 自动安装)
+[dependency-groups]
+dev = [
+    "ruff>=0.3.0",
+    "pyright>=1.1.350",
+    "mypy>=1.8.0",
+    "hypothesis>=6.98.0",
+    "pytest>=8.0.0",
+    "pre-commit>=3.6.0",
+]
+
+# -----------------------------------------------------------------------------
+# 1. Ruff 配置：代码规范、格式化、静态安全分析 (Bandit/S)
+# -----------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D",       # Docstring 规范（团队可按需开启）
+    "ANN101",  # 忽略 self 的类型标注
+    "ANN102",  # 忽略 cls 的类型标注
+    "COM812",  # 避免与 ruff format 发生逗号冲突
+    "ISC001",  # 避免与 ruff format 发生隐式拼接冲突
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "PLR2004", "ANN"]  # 测试目录放宽 assert 与魔数检查
+
+# -----------------------------------------------------------------------------
+# 2. Pyright 配置：微软快速/严格类型推导引擎
+# -----------------------------------------------------------------------------
+[tool.pyright]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = "error"
+reportUnusedImport = "error"
+reportUnusedVariable = "error"
+reportUntypedFunctionDecorator = "error"
+reportUnknownMemberType = "error"
+reportUnknownArgumentType = "error"
+
+# -----------------------------------------------------------------------------
+# 3. Mypy 配置：标准库推导与 Pydantic 插件增强
+# -----------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# -----------------------------------------------------------------------------
+# 4. Pytest 配置
+# -----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+markers = [
+    "fuzz: Hypothesis 自动化模糊压测用例",
+]
